@@ -1,0 +1,75 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+
+
+
+/* Centers the whole game on the screen */
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: sans-serif;
+  margin-top: 50px;
+}
+
+/* The 3x3 Grid */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px); /* 3 columns, 100px each */
+  grid-template-rows: repeat(3, 100px);    /* 3 rows, 100px each */
+  gap: 5px;                                /* Space between squares */
+  background-color: #333;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+/* Individual Squares */
+.square {
+  width: 100px;
+  height: 100px;
+  background: white;
+  border: 1px solid #999;
+  font-size: 2.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.square:hover {
+  background: #f0f0f0;
+}
+
+.status {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.fading {
+  color: #ccc; /* Makes the text look faint/gray */
+  background-color: #fff4f4; /* Subtle red warning */
+}
+
+.reset-button {
+  margin-top: 20px;
+  padding: 10px 25px;
+  font-size: 1.2rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.reset-button:hover {
+  background-color: #0056b3;
+}
