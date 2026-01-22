@@ -4,7 +4,16 @@ import { Server } from 'socket.io';
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "http://localhost:5173", "https://infinity-tictactoe.vercel.app/" } });
+
+// FIX: Corrected the CORS origin array syntax and added Port Binding
+const PORT = process.env.PORT || 3001;
+
+const io = new Server(httpServer, { 
+  cors: { 
+    origin: ["http://localhost:5173", "https://infinity-tictactoe.vercel.app"],
+    methods: ["GET", "POST"]
+  } 
+});
 
 interface RoomData {
   players: { X: string | null; O: string | null };
@@ -23,7 +32,6 @@ io.on('connection', (socket) => {
   console.log('New user connected:', socket.id);
 
   socket.on('join_room', ({ roomId, passcode }) => {
-    // 1. Create room if it doesn't exist
     if (!rooms.has(roomId)) {
       if (rooms.size >= 10) return socket.emit('error_message', 'Server is full');
       
@@ -41,12 +49,10 @@ io.on('connection', (socket) => {
 
     const room = rooms.get(roomId)!;
 
-    // 2. Check Passcode
     if (room.passcode && room.passcode !== passcode) {
       return socket.emit('error_message', 'Wrong passcode');
     }
 
-    // 3. Assign Role (X, O, or Spectator)
     let role: 'X' | 'O' | 'Spectator' = 'Spectator';
     if (!room.players.X) {
       room.players.X = socket.id;
@@ -58,7 +64,6 @@ io.on('connection', (socket) => {
 
     socket.join(roomId);
 
-    // 4. Send role and board state back to the user
     socket.emit('assign_role', { 
       role, 
       roomId, 
@@ -75,7 +80,6 @@ io.on('connection', (socket) => {
       const playerSymbol = gameState.isXNext ? 'X' : 'O';
       const moves = gameState.isXNext ? gameState.xMoves : gameState.oMoves;
 
-      // Update server state
       moves.push(index);
       gameState.board[index] = playerSymbol;
 
@@ -85,8 +89,6 @@ io.on('connection', (socket) => {
       }
 
       gameState.isXNext = !gameState.isXNext;
-      
-      // Tell everyone else in that specific room
       socket.to(roomId).emit('receive_move', { index });
     }
   });
@@ -105,14 +107,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
-    // Clean up player slots when they leave
     for (const roomId of socket.rooms) {
       const room = rooms.get(roomId);
       if (room) {
         if (room.players.X === socket.id) room.players.X = null;
         if (room.players.O === socket.id) room.players.O = null;
         
-        // Delete room if no players are left (keep spectators from holding rooms open)
         if (!room.players.X && !room.players.O) {
           rooms.delete(roomId);
           console.log(`Room ${roomId} deleted.`);
@@ -122,6 +122,7 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(3001, () => {
-  console.log('Multiplayer Server running on port 3001');
+// FIX: Bind to 0.0.0.0 and dynamic PORT for Render deployment
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`Multiplayer Server running on port ${PORT}`);
 });
