@@ -73,3 +73,29 @@
 .reset-button:hover {
   background-color: #0056b3;
 }
+
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px;
+}
+
+.lobby-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+}
+
+.lobby input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.quick-match {
+  background-color: #28a745;
+}
