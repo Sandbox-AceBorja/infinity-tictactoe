@@ -43,23 +43,42 @@ body {
 }
 
 /* 3. MODERN GRADIENT TYPOGRAPHY */
-.title-amazing, .gradient-text-amazing {
-  background: linear-gradient(to right, #22d3ee, #3b82f6, #9333ea);
+.title-amazing,
+.gradient-text-amazing {
+  background: linear-gradient(90deg, #2dd4bf, #22d3ee, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+
   font-size: 2.5rem;
   font-weight: 900;
   margin: 0;
+
+  /* glow effect */
+  text-shadow:
+    0 0 8px rgba(34, 211, 238, 0.6),
+    0 0 20px rgba(45, 212, 191, 0.4),
+    0 0 40px rgba(6, 182, 212, 0.3);
 }
 
-.title-stunning, .gradient-text-stunning {
-  background: linear-gradient(to right, #d946ef, #ec4899, #f43f5e);
+.title-stunning,
+.gradient-text-stunning {
+  background: linear-gradient(90deg, #ff1f1f, #ff3b3b, #ff6b6b);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
+
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
+
+  /* bright red glow */
+  text-shadow:
+    0 0 6px rgba(255, 31, 31, 0.7),
+    0 0 14px rgba(255, 59, 59, 0.6),
+    0 0 28px rgba(255, 31, 31, 0.5);
 }
+
 
 /* 4. NEON GAME BOARD */
 .board {
