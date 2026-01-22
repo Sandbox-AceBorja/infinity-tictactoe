@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "http://localhost:5173" } });
+const io = new Server(httpServer, { cors: { origin: "http://localhost:5173", "https://infinity-tictactoe.vercel.app/" } });
 
 interface RoomData {
   players: { X: string | null; O: string | null };
