@@ -28,14 +28,38 @@ function App() {
   const winner = calculateWinner(board);
 
   // Audio Refs
-  // Using public folder paths (/name.mp3)
-  // const moveSound = useRef(new Audio('/move.mp3'));
-  // const startSound = useRef(new Audio('/start.mp3'));
-  // const winSound = useRef(new Audio('/win.mp3'));
-  const moveSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')); // Tech Click
-  const startSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')); // UI Startup
-  const winSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')); // Win Chime
+  // const moveSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')); // Tech Click
+  // const startSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')); // UI Startup
+  // const winSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')); // Win Chime
 
+  const AUDIO_URLS = {
+    move: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+    start: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+    win: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'
+  };
+
+  const moveSound = useRef<HTMLAudioElement | null>(null);
+  const startSound = useRef<HTMLAudioElement | null>(null);
+  const winSound = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    moveSound.current = new Audio(AUDIO_URLS.move);
+    startSound.current = new Audio(AUDIO_URLS.start);
+    winSound.current = new Audio(AUDIO_URLS.win);
+
+    // Pre-load them
+    moveSound.current.load();
+    startSound.current.load();
+    winSound.current.load();
+  }, []);
+
+  // ADD THIS HELPER to fix the "no sound" issue
+  const playSfx = (audio: HTMLAudioElement | null) => {
+    if (audio) {
+      audio.currentTime = 0; // Rewind to start
+      audio.play().catch(e => console.warn("Audio blocked by browser. Click anywhere first."));
+    }
+  };
 
   // Play win sound when winner changes
   useEffect(() => {
@@ -81,12 +105,12 @@ function App() {
         setOMoves(initialState.oMoves);
         setIsXNext(initialState.isXNext);
       }
-      startSound.current.play().catch(() => {}); // catch blocks browser "autoplay" errors
+      playSfx(startSound.current); // catch blocks browser "autoplay" errors
     });
 
     socket.on('receive_move', (data: { index: number }) => {
       handleMove(data.index, false);
-      moveSound.current.play().catch(() => {}); // Play sound on opponent move
+      playSfx(moveSound.current);
     });
 
     socket.on('reset_game', () => {
@@ -94,7 +118,7 @@ function App() {
       setXMoves([]);
       setOMoves([]);
       setIsXNext(true);
-      startSound.current.play().catch(() => {});
+      playSfx(startSound.current);
     });
 
     socket.on('error_message', (msg) => {
@@ -116,7 +140,7 @@ function App() {
   // Win Sound Logic
   useEffect(() => {
     if (winner) {
-      winSound.current.play().catch(() => {});
+      playSfx(winSound.current);
     }
   }, [winner]);
 
@@ -145,7 +169,7 @@ function App() {
     const currentTurnRole = isXNext ? 'X' : 'O';
     if (myRole !== currentTurnRole) return;
 
-    moveSound.current.play().catch(() => {}); // Local move sound
+    playSfx(moveSound.current);
     handleMove(i, true);
   };
 
