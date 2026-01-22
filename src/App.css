@@ -1,101 +1,308 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* 1. GLOBAL RESET & TECH BACKGROUND */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Deep Tech Radial Gradient */
+  background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* This is vital to keep shapes from moving the UI */
+  position: relative;
+}
 
-
-
-
-/* Centers the whole game on the screen */
-.game {
+/* 2. GLASSMORPHISM PANELS (Lobby & Game) */
+.lobby, .game {
+  position: relative;
+  z-index: 2;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 32px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.02);
+  box-sizing: border-box;
+  max-width: 400px;
+  width: 90%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: sans-serif;
-  margin-top: 50px;
 }
 
-/* The 3x3 Grid */
+/* 3. MODERN GRADIENT TYPOGRAPHY */
+.title-amazing, .gradient-text-amazing {
+  background: linear-gradient(to right, #22d3ee, #3b82f6, #9333ea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.title-stunning, .gradient-text-stunning {
+  background: linear-gradient(to right, #d946ef, #ec4899, #f43f5e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* 4. NEON GAME BOARD */
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 100px); /* 3 columns, 100px each */
-  grid-template-rows: repeat(3, 100px);    /* 3 rows, 100px each */
-  gap: 5px;                                /* Space between squares */
-  background-color: #333;
-  padding: 5px;
-  border-radius: 8px;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 15px;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Individual Squares */
 .square {
   width: 100px;
   height: 100px;
-  background: white;
-  border: 1px solid #999;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   font-size: 2.5rem;
   font-weight: bold;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .square:hover {
-  background: #f0f0f0;
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  transform: scale(1.02);
 }
 
+/* Neon Glow for Symbols */
+/* .square-x { color: #22d3ee; text-shadow: 0 0 15px #22d3ee; }
+.square-o { color: #f43f5e; text-shadow: 0 0 15px #f43f5e; } */
+
+/* Fading logic for Infinity mechanic */
+.fading { 
+  opacity: 0.3; 
+  filter: blur(2px);
+  transform: scale(0.9);
+}
+
+/* 5. UI CONTROLS & BUTTONS */
 .status {
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-}
-
-.fading {
-  color: #ccc; /* Makes the text look faint/gray */
-  background-color: #fff4f4; /* Subtle red warning */
-}
-
-.reset-button {
-  margin-top: 20px;
-  padding: 10px 25px;
   font-size: 1.2rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.reset-button:hover {
-  background-color: #0056b3;
-}
-
-
-.lobby {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  padding: 40px;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #94a3b8;
 }
 
 .lobby-controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 300px;
+  gap: 12px;
+  width: 100%;
 }
 
 .lobby input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 12px;
+  color: white;
+  outline: none;
+  transition: border 0.3s;
 }
 
-.quick-match {
-  background-color: #28a745;
+.lobby input:focus {
+  border-color: #3b82f6;
+}
+
+.game-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+/* TECH BUTTON STYLES */
+button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reset-button, .quick-match {
+  background: linear-gradient(45deg, #10b981, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.leave-button {
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.5);
+  color: #f43f5e;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Container must be relative to contain absolute shapes */
+.app-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center; /* Forces horizontal center */
+  align-items: center;     /* Forces vertical center */
+  background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+  overflow: hidden;        /* Prevents shapes from creating scrollbars */
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+/* Base Shape Style */
+.shape {
+  position: absolute;
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: -1; /* Behind .lobby and .game (which are z-index: 2) */
+  opacity: 0.7; /* Increased slightly for visibility */
+  pointer-events: none; /* Crucial: clicks go through shapes to the buttons */
+  animation: float 20s infinite alternate ease-in-out;
+}
+
+/* Shape 1: Cyan/Blue (Top Left) */
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  background: #22d3ee;
+  top: -100px;
+  left: -100px;
+}
+
+/* Shape 2: Purple/Fuchsia (Bottom Right) */
+.shape-2 {
+  width: 400px;
+  height: 400px;
+  background: #9333ea;
+  bottom: -150px;
+  right: -100px;
+  animation-duration: 25s;
+  animation-delay: -5s;
+}
+
+/* Shape 3: Rose/Pink (Middle Left) */
+.shape-3 {
+  width: 250px;
+  height: 250px;
+  background: #f43f5e;
+  top: 40%;
+  left: -50px;
+  animation-duration: 15s;
+  animation-delay: -2s;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, 50px) scale(1.1) rotate(120deg);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9) rotate(240deg);
+  }
+  100% {
+    transform: translate(0, 0) scale(1) rotate(360deg);
+  }
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+}
+.separator::before, .separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.separator span { padding: 0 10px; }
+
+.tech-input {
+  width: 100%;
+  box-sizing: border-box; /* This keeps inputs from stretching too wide */
+}
+
+.room-id {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  margin: 0;
+  border-radius: 8px;
+  font-size: xx-large;
+}
+
+/* Update the role to have a default base color */
+.role {
+  font-weight: 700;
+  margin-top: 5px;
+  color: #cbd5e1; /* Default grayish white */
+  transition: color 0.3s ease;
+}
+
+/* Update status to allow the neon classes to show through */
+.status {
+  text-align: center;
+  margin: 0px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #cbd5e1; /* Base color for the "Next Player:" label */
+}
+
+/* Ensure the neon classes work on plain text, not just buttons */
+.square-x { 
+  color: #22d3ee !important; 
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+  -webkit-text-fill-color: #22d3ee !important; /* Overrides the gradient transparent mask */
+}
+
+.square-o { 
+  color: #f43f5e !important; 
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
+  -webkit-text-fill-color: #f43f5e !important; /* Overrides the gradient transparent mask */
 }

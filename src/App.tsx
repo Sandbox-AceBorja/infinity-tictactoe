@@ -7,32 +7,53 @@ const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001');
 type SquareValue = 'X' | 'O' | null;
 
 function App() {
-  const [inRoom, setInRoom] = useState(false);
-  const [roomId, setRoomId] = useState('');
+  // Load initial state from storage
+  const savedRoom = localStorage.getItem('tictactoe_room');
+  const savedRole = localStorage.getItem('tictactoe_role');
+
+  const [inRoom, setInRoom] = useState(!!savedRoom);
+  const [roomId, setRoomId] = useState(savedRoom || '');
+  const [myRole, setMyRole] = useState(savedRole || '');
   const [passcode, setPasscode] = useState('');
   
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   const [xMoves, setXMoves] = useState<number[]>([]);
   const [oMoves, setOMoves] = useState<number[]>([]);
   const [isXNext, setIsXNext] = useState<boolean>(true);
-  const [myRole, setMyRole] = useState<string>(''); 
 
   const winner = calculateWinner(board);
 
-  // 1. Join Room
-  const joinRoom = (id: string, pass?: string) => {
-    if (!id) return alert("Enter a Room Name");
-    socket.emit('join_room', { roomId: id, passcode: pass });
+  // --- PERSISTENCE LOGIC ---
+
+  // Effect 1: Auto-rejoin on mount (Only runs ONCE when the app starts)
+  useEffect(() => {
+    if (savedRoom) {
+      socket.emit('join_room', { roomId: savedRoom });
+    }
+  }, []); // Empty array = run once
+
+  // Function to leave the room and clear storage
+  const leaveRoom = () => {
+    localStorage.removeItem('tictactoe_room');
+    localStorage.removeItem('tictactoe_role');
+    setInRoom(false);
+    setRoomId('');
+    setMyRole('');
+    window.location.reload(); 
   };
 
-  // 2. Global Socket Listeners (One single useEffect)
+  // --- SOCKET LISTENERS ---
+
   useEffect(() => {
     socket.on('assign_role', ({ role, roomId: joinedRoomId, initialState }) => {
       setMyRole(role);
       setRoomId(joinedRoomId);
       setInRoom(true);
 
-      // Sync the board with what the server sent
+      // Save to local storage for refresh persistence
+      localStorage.setItem('tictactoe_room', joinedRoomId);
+      localStorage.setItem('tictactoe_role', role);
+
       if (initialState) {
         setBoard(initialState.board);
         setXMoves(initialState.xMoves);
@@ -52,7 +73,12 @@ function App() {
       setIsXNext(true);
     });
 
-    socket.on('error_message', (msg) => alert(msg));
+    socket.on('error_message', (msg) => {
+      alert(msg);
+      // If there's an error re-joining (like room full), clear storage
+      localStorage.removeItem('tictactoe_room');
+      setInRoom(false);
+    });
 
     return () => {
       socket.off('assign_role');
@@ -60,12 +86,16 @@ function App() {
       socket.off('reset_game');
       socket.off('error_message');
     };
-    // Note: We leave the dependency array mostly empty or carefully managed
   }, [board, xMoves, oMoves, isXNext]);
 
-  // 3. Game Logic
+  // --- GAMEPLAY ACTIONS ---
+
+  const joinRoom = (id: string, pass?: string) => {
+    if (!id) return alert("Enter a Room Name");
+    socket.emit('join_room', { roomId: id, passcode: pass });
+  };
+
   const resetGame = () => {
-    // Tell the server which room to reset
     socket.emit('request_reset', roomId);
   };
 
@@ -103,49 +133,104 @@ function App() {
     setIsXNext(!isXNext);
 
     if (isLocal) {
-      // IMPORTANT: Send the roomId so the server knows where to broadcast
       socket.emit('send_move', { roomId, index: i });
     }
   };
 
-  // 4. Render Logic
-  if (!inRoom) {
-    return (
-      <div className="lobby">
-        <h1>Infinity Tic-Tac-Toe</h1>
-        <div className="lobby-controls">
-          <input placeholder="Room Name" value={roomId} onChange={e => setRoomId(e.target.value)} />
-          <input placeholder="Passcode (Optional)" value={passcode} onChange={e => setPasscode(e.target.value)} />
-          <button onClick={() => joinRoom(roomId, passcode)}>Create/Join Room</button>
-          <hr />
-          <button className="quick-match" onClick={() => joinRoom(Math.random().toString(36).substring(7))}>
-            Quick Random Match
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  // --- RENDER ---
   return (
-    <div className="game">
-      <h1>Room: {roomId}</h1>
-      <h3>You are: {myRole}</h3>
-      <div className="status">
-        {winner ? `Winner: ${winner}` : `Next Player: ${isXNext ? 'X' : 'O'}`}
-      </div>
-      <div className="board">
-        {board.map((square, i) => {
-          const isOldest = (isXNext && xMoves[0] === i && xMoves.length === 3) || 
-                           (!isXNext && oMoves[0] === i && oMoves.length === 3);
-          return (
-            <button key={i} className={`square ${isOldest ? 'fading' : ''}`} onClick={() => handleClick(i)}>
-              {square}
+    <div className="app-container">
+      {/* Background Shapes stay visible for both Lobby and Game */}
+      <div className="shape shape-1"></div>
+      <div className="shape shape-2"></div>
+      <div className="shape shape-3"></div>
+
+      {!inRoom ? (
+        <div className="lobby">
+          <h1 className="title-amazing">Infinity</h1>
+          <h1 className="title-stunning">Tic-Tac-Toe</h1>
+          
+          <div className="lobby-controls">
+            <input 
+              className="tech-input"
+              placeholder="Room Name" 
+              value={roomId} 
+              maxLength={10}
+              onChange={e => setRoomId(e.target.value)} 
+            />
+            <input 
+              className="tech-input"
+              type="password"
+              placeholder="Passcode (Optional)" 
+              value={passcode} 
+              maxLength={10}
+              onChange={e => setPasscode(e.target.value)} 
+            />
+            <button className="reset-button" onClick={() => joinRoom(roomId, passcode)}>
+              Create / Join Room
             </button>
-          );
-        })}
-      </div>
-      {winner && myRole !== 'Spectator' && (
-        <button className="reset-button" onClick={resetGame}>New Game</button>
+            
+            <div className="separator">
+              <span>OR</span>
+            </div>
+
+            <button 
+              className="leave-button" 
+              style={{background: 'rgba(59, 130, 246, 0.1)', borderColor: '#3b82f6', color: '#3b82f6'}} 
+              onClick={() => joinRoom(Math.random().toString(36).substring(7))}
+            >
+              Quick Random Match
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="game">
+          <div className="game-header">
+            <h1 className="room-id">Room: {roomId}</h1>
+          </div>
+          
+          <h3 className={`role ${myRole === 'X' ? 'square-x' : myRole === 'O' ? 'square-o' : ''}`}>
+            You are: {myRole}
+          </h3>
+          <div className="status">
+            {winner ? (
+              <span className={winner === 'X' ? 'square-x' : 'square-o'}>Winner: {winner}</span>
+            ) : (
+              <>
+                Next Player: 
+                <span className={isXNext ? 'square-x' : 'square-o'}> {isXNext ? 'X' : 'O'}</span>
+              </>
+            )}
+          </div>
+
+          <div className="board">
+            {board.map((square, i) => {
+              // Calculate if this square is the one about to disappear
+              const isOldest = (isXNext && xMoves[0] === i && xMoves.length === 3) || 
+                               (!isXNext && oMoves[0] === i && oMoves.length === 3);
+              
+              // Apply neon glow classes based on the symbol
+              const symbolClass = square === 'X' ? 'square-x' : square === 'O' ? 'square-o' : '';
+              
+              return (
+                <button 
+                  key={i} 
+                  className={`square ${isOldest ? 'fading' : ''} ${symbolClass}`} 
+                  onClick={() => handleClick(i)}
+                >
+                  {square}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className='game-footer'>
+            {winner && myRole !== 'Spectator' && (
+              <button className="reset-button" onClick={resetGame}>New Game</button>
+            )}
+            <button className="leave-button" onClick={leaveRoom}>← Leave Room</button>
+          </div>
+        </div>
       )}
     </div>
   );
