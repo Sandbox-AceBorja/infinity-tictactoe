@@ -29,9 +29,12 @@ function App() {
 
   // Audio Refs
   // Using public folder paths (/name.mp3)
-  const moveSound = useRef(new Audio('/move.mp3'));
-  const startSound = useRef(new Audio('/start.mp3'));
-  const winSound = useRef(new Audio('/win.mp3'));
+  // const moveSound = useRef(new Audio('/move.mp3'));
+  // const startSound = useRef(new Audio('/start.mp3'));
+  // const winSound = useRef(new Audio('/win.mp3'));
+  const moveSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')); // Tech Click
+  const startSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')); // UI Startup
+  const winSound = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3')); // Win Chime
 
 
   // Play win sound when winner changes

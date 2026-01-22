@@ -35,11 +35,10 @@ io.on('connection', (socket) => {
   const updateRoomStatus = (roomId: string) => {
     const room = rooms.get(roomId);
     if (room) {
-      const status = {
+      io.to(roomId).emit('opponent_status', {
         xConnected: !!room.players.X,
         oConnected: !!room.players.O,
-      };
-      io.to(roomId).emit('opponent_status', status);
+      });
     }
   };
 
