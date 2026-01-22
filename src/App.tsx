@@ -90,6 +90,15 @@ function App() {
 
   // --- GAMEPLAY ACTIONS ---
 
+  const quickMatch = () => {
+    // Clear old data first so the app is ready for a fresh assignment
+    localStorage.removeItem('tictactoe_room');
+    localStorage.removeItem('tictactoe_role');
+    setRoomId('');
+    setMyRole('');
+    socket.emit('find_public_room');
+  };
+
   const joinRoom = (id: string, pass?: string) => {
     if (!id) return alert("Enter a Room Name");
     socket.emit('join_room', { roomId: id, passcode: pass });
@@ -177,10 +186,11 @@ function App() {
             <button 
               className="leave-button" 
               style={{background: 'rgba(59, 130, 246, 0.1)', borderColor: '#3b82f6', color: '#3b82f6'}} 
-              onClick={() => joinRoom(Math.random().toString(36).substring(7))}
+              onClick={quickMatch} // Make sure this is calling quickMatch, not joinRoom directly
             >
               Quick Random Match
             </button>
+
           </div>
         </div>
       ) : (

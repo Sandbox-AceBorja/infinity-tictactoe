@@ -31,6 +31,53 @@ const rooms = new Map<string, RoomData>();
 io.on('connection', (socket) => {
   console.log('New user connected:', socket.id);
 
+  socket.on('find_public_room', () => {
+    // 1. Find an available room
+    // A room is "available" if it has exactly 1 player and NO passcode
+    const availableEntry = Array.from(rooms.entries()).find(([id, r]) => {
+      const playerCount = (r.players.X ? 1 : 0) + (r.players.O ? 1 : 0);
+      return playerCount === 1 && r.passcode === null;
+    });
+
+    if (availableEntry) {
+      const [roomId, room] = availableEntry;
+      
+      // Assign the remaining role
+      const role = !room.players.X ? 'X' : 'O';
+      room.players[role] = socket.id;
+      
+      socket.join(roomId);
+      socket.emit('assign_role', { 
+        role: role, 
+        roomId: roomId, 
+        initialState: room.gameState 
+      });
+      console.log(`Matched user to existing room: ${roomId}`);
+    } else {
+      // 2. No room found? Create a new one
+      const newRoomId = Math.random().toString(36).substring(7);
+      
+      rooms.set(newRoomId, { 
+        players: { X: socket.id, O: null }, 
+        passcode: null,
+        gameState: {
+          board: Array(9).fill(null),
+          xMoves: [],
+          oMoves: [],
+          isXNext: true
+        }
+      });
+
+      socket.join(newRoomId);
+      socket.emit('assign_role', { 
+        role: 'X', 
+        roomId: newRoomId,
+        initialState: null 
+      });
+      console.log(`Created new public room: ${newRoomId}`);
+    }
+  });
+
   socket.on('join_room', ({ roomId, passcode }) => {
     if (!rooms.has(roomId)) {
       if (rooms.size >= 10) return socket.emit('error_message', 'Server is full');
