@@ -325,3 +325,39 @@ button:hover {
   text-shadow: 0 0 10px rgba(244, 63, 94, 0.6);
   -webkit-text-fill-color: #f43f5e !important; /* Overrides the gradient transparent mask */
 }
+
+.presence-indicator {
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #94a3b8;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.online {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.dot.offline {
+  background: #f43f5e;
+  box-shadow: 0 0 10px #f43f5e;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}

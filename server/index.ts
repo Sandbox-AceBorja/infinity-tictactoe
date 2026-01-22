@@ -31,6 +31,18 @@ const rooms = new Map<string, RoomData>();
 io.on('connection', (socket) => {
   console.log('New user connected:', socket.id);
 
+  // Helper to notify room about player status
+  const updateRoomStatus = (roomId: string) => {
+    const room = rooms.get(roomId);
+    if (room) {
+      const status = {
+        xConnected: !!room.players.X,
+        oConnected: !!room.players.O,
+      };
+      io.to(roomId).emit('opponent_status', status);
+    }
+  };
+
   socket.on('find_public_room', () => {
     // 1. Find an available room
     // A room is "available" if it has exactly 1 player and NO passcode
@@ -116,6 +128,15 @@ io.on('connection', (socket) => {
       roomId, 
       initialState: room.gameState 
     });
+
+    // const room = rooms.get(roomId);
+    if (room && room.players.X && room.players.O) {
+      // Auto-restart if both players are now present
+      room.gameState = { board: Array(9).fill(null), xMoves: [], oMoves: [], isXNext: true };
+      io.to(roomId).emit('reset_game');
+    }
+
+    updateRoomStatus(roomId);
     
     console.log(`User ${socket.id} joined room ${roomId} as ${role}`);
   });
@@ -159,6 +180,8 @@ io.on('connection', (socket) => {
       if (room) {
         if (room.players.X === socket.id) room.players.X = null;
         if (room.players.O === socket.id) room.players.O = null;
+
+        updateRoomStatus(roomId);
         
         if (!room.players.X && !room.players.O) {
           rooms.delete(roomId);

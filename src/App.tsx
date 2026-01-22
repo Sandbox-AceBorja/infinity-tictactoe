@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
 
@@ -7,6 +7,7 @@ const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001');
 type SquareValue = 'X' | 'O' | null;
 
 function App() {
+  // --- STATE ---
   // Load initial state from storage
   const savedRoom = localStorage.getItem('tictactoe_room');
   const savedRole = localStorage.getItem('tictactoe_role');
@@ -15,6 +16,9 @@ function App() {
   const [roomId, setRoomId] = useState(savedRoom || '');
   const [myRole, setMyRole] = useState(savedRole || '');
   const [passcode, setPasscode] = useState('');
+
+  // NEW: Added missing state for opponent tracking
+  const [opponentStatus, setOpponentStatus] = useState({ xConnected: false, oConnected: false });
   
   const [board, setBoard] = useState<SquareValue[]>(Array(9).fill(null));
   const [xMoves, setXMoves] = useState<number[]>([]);
@@ -23,14 +27,26 @@ function App() {
 
   const winner = calculateWinner(board);
 
-  // --- PERSISTENCE LOGIC ---
+  // Audio Refs
+  // Using public folder paths (/name.mp3)
+  const moveSound = useRef(new Audio('/move.mp3'));
+  const startSound = useRef(new Audio('/start.mp3'));
+  const winSound = useRef(new Audio('/win.mp3'));
 
-  // Effect 1: Auto-rejoin on mount (Only runs ONCE when the app starts)
+
+  // Play win sound when winner changes
+  useEffect(() => {
+    if (winner) {
+      winSound.current.play().catch(err => console.log("Audio play blocked until user interaction"));
+    }
+  }, [winner]);
+
+  // --- PERSISTENCE LOGIC ---
   useEffect(() => {
     if (savedRoom) {
       socket.emit('join_room', { roomId: savedRoom });
     }
-  }, []); // Empty array = run once
+  }, []);
 
   // Function to leave the room and clear storage
   const leaveRoom = () => {
@@ -45,12 +61,14 @@ function App() {
   // --- SOCKET LISTENERS ---
 
   useEffect(() => {
+    socket.on('opponent_status', (status) => {
+      setOpponentStatus(status);
+    });
+
     socket.on('assign_role', ({ role, roomId: joinedRoomId, initialState }) => {
       setMyRole(role);
       setRoomId(joinedRoomId);
       setInRoom(true);
-
-      // Save to local storage for refresh persistence
       localStorage.setItem('tictactoe_room', joinedRoomId);
       localStorage.setItem('tictactoe_role', role);
 
@@ -60,10 +78,12 @@ function App() {
         setOMoves(initialState.oMoves);
         setIsXNext(initialState.isXNext);
       }
+      startSound.current.play().catch(() => {}); // catch blocks browser "autoplay" errors
     });
 
     socket.on('receive_move', (data: { index: number }) => {
       handleMove(data.index, false);
+      moveSound.current.play().catch(() => {}); // Play sound on opponent move
     });
 
     socket.on('reset_game', () => {
@@ -71,6 +91,7 @@ function App() {
       setXMoves([]);
       setOMoves([]);
       setIsXNext(true);
+      startSound.current.play().catch(() => {});
     });
 
     socket.on('error_message', (msg) => {
@@ -81,12 +102,20 @@ function App() {
     });
 
     return () => {
+      socket.off('opponent_status');
       socket.off('assign_role');
       socket.off('receive_move');
       socket.off('reset_game');
       socket.off('error_message');
     };
   }, [board, xMoves, oMoves, isXNext]);
+
+  // Win Sound Logic
+  useEffect(() => {
+    if (winner) {
+      winSound.current.play().catch(() => {});
+    }
+  }, [winner]);
 
   // --- GAMEPLAY ACTIONS ---
 
@@ -112,6 +141,8 @@ function App() {
     if (board[i] || winner) return;
     const currentTurnRole = isXNext ? 'X' : 'O';
     if (myRole !== currentTurnRole) return;
+
+    moveSound.current.play().catch(() => {}); // Local move sound
     handleMove(i, true);
   };
 
@@ -145,6 +176,9 @@ function App() {
       socket.emit('send_move', { roomId, index: i });
     }
   };
+
+  // --- RENDER STATUS INDICATOR ---
+  const isOpponentHere = myRole === 'X' ? opponentStatus.oConnected : opponentStatus.xConnected;
 
   // --- RENDER ---
   return (
@@ -195,6 +229,10 @@ function App() {
         </div>
       ) : (
         <div className="game">
+          <div className="presence-indicator">
+            <span className={`dot ${isOpponentHere ? 'online' : 'offline'}`}></span>
+            {isOpponentHere ? "Opponent Connected" : "Waiting for opponent..."}
+          </div>
           <div className="game-header">
             <h1 className="room-id">Room: {roomId}</h1>
           </div>
