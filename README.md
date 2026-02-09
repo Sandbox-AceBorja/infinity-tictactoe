@@ -62,6 +62,7 @@ npm install
 ```
 
 ### 3. Run the development server
+*Running frontend side*
 ```bash
 npm run dev
 ```
@@ -70,6 +71,23 @@ The app will be available at:
 ```bash
 http://localhost:5173
 ```
+
+*Running server side*
+Navigate to the server directory:
+```bash
+cd server
+```
+
+Start the server:
+```bash
+npx tsx index.ts
+```
+
+The server will start on:
+```bash
+http://localhost:3001
+```
+
 ---
 
 ## 🌍 Deployment
