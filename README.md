@@ -1,6 +1,6 @@
 # Tic Tac Toe — Twist Edition
 
-A modern twist on the classic Tic Tac Toe game built with **React (Vite)**.  
+A modern twist on the classic Tic Tac Toe game built with **React (Vite)** and **TypeScript**.  
 In this version, each player can only have **three active moves** on the board at any time. When a player makes a fourth move, their **oldest move is automatically removed**, creating a dynamic and strategic gameplay experience.
 
 ---
@@ -18,9 +18,9 @@ In this version, each player can only have **three active moves** on the board a
 ## 🛠 Tech Stack
 
 - **React** (with Vite)
-- **JavaScript (ES6+)**
-- **CSS**
-- Deployed via **Netlify / Vercel**
+- **Node JS** (Express)
+- **TypeScript**
+- Deployed via **Vercel / Render**
 
 ---
 
@@ -28,9 +28,9 @@ In this version, each player can only have **three active moves** on the board a
 
 ```bash
 src/
-├─ App.jsx # Main game logic and UI
+├─ App.tsx # Main game logic and UI
 ├─ App.css # Component-level styles
-├─ main.jsx # React entry point
+├─ main.tsx # React entry point
 └─ index.css # Global styles
 ```
 
