@@ -79,6 +79,11 @@ body {
     0 0 28px rgba(255, 31, 31, 0.5);
 }
 
+.multiplayer {
+  font-size: 0.7rem;
+  margin: -5px 0 15px 0;
+  color: #94a3b8;
+}
 
 /* 4. NEON GAME BOARD */
 .board {
@@ -361,3 +366,13 @@ button:hover {
   50% { opacity: 0.4; }
   100% { opacity: 1; }
 }
+
+.info-note {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 5px;
+  text-align: center;
+  width: 70%;
+  margin: 0 auto;
+}
+

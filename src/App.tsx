@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import './App.css';
+import { InfoCircle } from "flowbite-react-icons/outline";
 
 const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001');
 
@@ -219,6 +220,7 @@ function App() {
         <div className="lobby">
           <h1 className="title-amazing">Infinity</h1>
           <h1 className="title-stunning">Tic-Tac-Toe</h1>
+          <h2 className="multiplayer">( Multiplayer Mode )</h2>
           
           <div className="lobby-controls">
             <input 
@@ -251,6 +253,8 @@ function App() {
             >
               Quick Random Match
             </button>
+
+            <p className='info-note'><InfoCircle size={18} style={{display: 'inline-block', verticalAlign: 'middle', marginRight: '8px'}} />The first load may take a few seconds due to server wake-up.</p>
 
           </div>
         </div>
